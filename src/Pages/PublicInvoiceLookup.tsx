@@ -35,19 +35,16 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 // Trong production: cần config CORS trên backend hoặc dùng same domain
 const API_BASE_URL = import.meta.env.DEV ? '/api' : 'http://159.223.64.31/api'
 
-// Interface cho API response
+// Interface cho API response - Backend trả về trực tiếp object
 interface InvoiceApiResponse {
-  success: boolean
-  data: {
-    invoiceNumber: string
-    serialNumber: string
-    issueDate: string // ISO 8601 format
-    sellerName: string
-    buyerName: string
-    totalAmount: number
-    status: string
-    pdfUrl: string
-  }
+  invoiceNumber: string
+  serialNumber: string
+  issueDate: string // ISO 8601 format
+  sellerName: string
+  buyerName: string
+  totalAmount: number
+  status: string
+  pdfUrl?: string
 }
 
 // Interface cho kết quả tra cứu hiển thị
@@ -86,95 +83,53 @@ const PublicInvoiceLookup: React.FC = () => {
   // Form states
   const [lookupCode, setLookupCode] = useState('')
   const [captchaInput, setCaptchaInput] = useState('')
-  const [captchaText, setCaptchaText] = useState('')
+  const [captchaId, setCaptchaId] = useState('')
+  const [captchaImage, setCaptchaImage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isCaptchaLoading, setIsCaptchaLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<InvoiceLookupResult | null>(null)
-  
-  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Generate CAPTCHA
-  const generateCaptcha = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-    let captcha = ''
-    for (let i = 0; i < 6; i++) {
-      captcha += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    setCaptchaText(captcha)
-    return captcha
-  }
+  // Fetch CAPTCHA từ backend
+  const fetchCaptcha = async () => {
+    setIsCaptchaLoading(true)
+    try {
+      const response = await fetch(`${API_BASE_URL}/captcha/generate`, {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json',
+        },
+      })
 
-  // Draw CAPTCHA on canvas
-  const drawCaptcha = (text: string) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+      if (!response.ok) {
+        throw new Error('Không thể tải mã kiểm tra. Vui lòng thử lại.')
+      }
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // Background gradient
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
-    gradient.addColorStop(0, '#f0f9ff')
-    gradient.addColorStop(1, '#e0f2fe')
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-    // Add noise lines
-    for (let i = 0; i < 5; i++) {
-      ctx.strokeStyle = `rgba(6, 182, 212, ${Math.random() * 0.3})`
-      ctx.beginPath()
-      ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height)
-      ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height)
-      ctx.stroke()
-    }
-
-    // Draw text với font monospace đẹp hơn
-    ctx.font = 'bold 36px "JetBrains Mono", "Roboto Mono", "Courier New", monospace'
-    ctx.fillStyle = '#0f172a'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    
-    // Add slight rotation and spacing
-    const charWidth = canvas.width / text.length
-    for (let i = 0; i < text.length; i++) {
-      ctx.save()
-      const x = charWidth * i + charWidth / 2
-      const y = canvas.height / 2
-      ctx.translate(x, y)
-      ctx.rotate((Math.random() - 0.5) * 0.3)
-      ctx.fillText(text[i], 0, 0)
-      ctx.restore()
-    }
-
-    // Add dots
-    for (let i = 0; i < 30; i++) {
-      ctx.fillStyle = `rgba(6, 182, 212, ${Math.random() * 0.5})`
-      ctx.fillRect(
-        Math.random() * canvas.width,
-        Math.random() * canvas.height,
-        2,
-        2
-      )
+      const data = await response.json()
+      
+      // Backend trả về: { captchaId, imageBase64 }
+      setCaptchaId(data.captchaId)
+      setCaptchaImage(data.imageBase64)
+      setCaptchaInput('') // Clear input khi có captcha mới
+    } catch (err) {
+      console.error('Fetch captcha error:', err)
+      setError('Không thể tải mã kiểm tra. Vui lòng thử lại.')
+    } finally {
+      setIsCaptchaLoading(false)
     }
   }
 
-  // Initialize CAPTCHA
+  // Initialize CAPTCHA khi mount
   useEffect(() => {
-    const text = generateCaptcha()
-    drawCaptcha(text)
+    fetchCaptcha()
   }, [])
 
-  // Refresh CAPTCHA
+  // Refresh CAPTCHA - gọi API để lấy mã mới
   const handleRefreshCaptcha = () => {
-    const text = generateCaptcha()
-    drawCaptcha(text)
-    setCaptchaInput('')
+    fetchCaptcha()
   }
 
-  // Validate form
+  // Validate form - chỉ check trống, backend sẽ validate captcha
   const validateForm = (): boolean => {
     if (!lookupCode.trim()) {
       setError('Vui lòng nhập mã tra cứu hóa đơn')
@@ -190,9 +145,8 @@ const PublicInvoiceLookup: React.FC = () => {
         return false
       }
 
-      if (captchaInput.toUpperCase() !== captchaText) {
-        setError('Mã kiểm tra không chính xác')
-        handleRefreshCaptcha()
+      if (!captchaId) {
+        setError('Lỗi hệ thống: Không có mã captcha. Vui lòng thử lại.')
         return false
       }
     }
@@ -210,14 +164,32 @@ const PublicInvoiceLookup: React.FC = () => {
     setIsLoading(true)
 
     try {
-      // Call API thực tế
+      // Call API thực tế với CAPTCHA headers
+      const headers: HeadersInit = {
+        'accept': '*/*',
+      }
+
+      // Thêm CAPTCHA headers nếu không skip
+      const skipCaptcha = import.meta.env.VITE_ENABLE_CAPTCHA === 'false'
+      if (!skipCaptcha) {
+        console.log('Sending captcha headers:', {
+          captchaId,
+          captchaInput: captchaInput.trim(),
+          captchaIdLength: captchaId?.length || 0,
+          captchaInputLength: captchaInput.trim().length
+        })
+        
+        headers['X-Captcha-ID'] = captchaId || ''
+        headers['X-Captcha-Input'] = captchaInput.trim() || ''
+      }
+
+      console.log('Request headers:', headers)
+
       const response = await fetch(
-        `${API_BASE_URL}/Invoice/public/lookup/${lookupCode.trim()}`,
+        `${API_BASE_URL}/Invoice/lookup/${lookupCode.trim()}`,
         {
           method: 'GET',
-          headers: {
-            'accept': '*/*',
-          },
+          headers,
         }
       )
 
@@ -225,7 +197,28 @@ const PublicInvoiceLookup: React.FC = () => {
         if (response.status === 404) {
           throw new Error('Không tìm thấy hóa đơn. Vui lòng kiểm tra lại mã tra cứu.')
         } else if (response.status === 400) {
-          throw new Error('Mã tra cứu không hợp lệ.')
+          // Backend có thể trả về plain text hoặc JSON
+          const contentType = response.headers.get('content-type')
+          let errorMessage = ''
+          
+          if (contentType?.includes('application/json')) {
+            const errorData = await response.json().catch(() => ({}))
+            errorMessage = errorData.message || 'Yêu cầu không hợp lệ.'
+          } else {
+            // Plain text response
+            errorMessage = await response.text().catch(() => 'Yêu cầu không hợp lệ.')
+          }
+          
+          console.log('Backend error 400:', errorMessage)
+          
+          // Nếu là lỗi captcha → auto refresh captcha mới
+          if (errorMessage.toLowerCase().includes('captcha')) {
+            console.log('Auto refreshing captcha...')
+            handleRefreshCaptcha() // Tự động refresh captcha
+            throw new Error(errorMessage)
+          }
+          
+          throw new Error(errorMessage)
         } else {
           throw new Error('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.')
         }
@@ -233,20 +226,23 @@ const PublicInvoiceLookup: React.FC = () => {
 
       const apiResponse: InvoiceApiResponse = await response.json()
       
-      if (!apiResponse.success) {
-        throw new Error('Không tìm thấy thông tin hóa đơn.')
+      console.log('API Response:', apiResponse)
+      
+      // Validate response có đủ fields không
+      if (!apiResponse.invoiceNumber || !apiResponse.serialNumber) {
+        throw new Error('Dữ liệu hóa đơn không hợp lệ.')
       }
 
       // Map API response to display format
       const invoiceResult: InvoiceLookupResult = {
-        invoiceNumber: apiResponse.data.invoiceNumber,
-        serialNumber: apiResponse.data.serialNumber,
-        issueDate: formatDate(apiResponse.data.issueDate),
-        sellerName: apiResponse.data.sellerName,
-        buyerName: apiResponse.data.buyerName || 'Chưa có thông tin',
-        totalAmount: apiResponse.data.totalAmount,
-        status: apiResponse.data.status,
-        pdfUrl: apiResponse.data.pdfUrl || undefined,
+        invoiceNumber: apiResponse.invoiceNumber,
+        serialNumber: apiResponse.serialNumber,
+        issueDate: formatDate(apiResponse.issueDate),
+        sellerName: apiResponse.sellerName,
+        buyerName: apiResponse.buyerName || 'Chưa có thông tin',
+        totalAmount: apiResponse.totalAmount,
+        status: apiResponse.status,
+        pdfUrl: apiResponse.pdfUrl || undefined,
       }
       
       setResult(invoiceResult)
@@ -256,7 +252,6 @@ const PublicInvoiceLookup: React.FC = () => {
       } else {
         setError('Không tìm thấy hóa đơn. Vui lòng kiểm tra lại mã tra cứu.')
       }
-      handleRefreshCaptcha()
     } finally {
       setIsLoading(false)
     }
@@ -423,9 +418,14 @@ const PublicInvoiceLookup: React.FC = () => {
                     label="Mã nhận hóa đơn / Mã tra cứu"
                     placeholder="Nhập mã số bí mật..."
                     value={lookupCode}
-                    onChange={(e) => setLookupCode(e.target.value.toUpperCase())}
+                    onChange={(e) => setLookupCode(e.target.value)}
                     required
                     disabled={isLoading}
+                    inputProps={{
+                      autoCapitalize: 'off',
+                      autoCorrect: 'off',
+                      autoComplete: 'off',
+                    }}
                     InputProps={{
                       startAdornment: <SearchIcon sx={{ fontSize: 20, mr: 1, color: '#06b6d4' }} />,
                     }}
@@ -448,6 +448,13 @@ const PublicInvoiceLookup: React.FC = () => {
                   <Box>
                     <Typography variant="body2" sx={{ mb: 1, fontWeight: 600 }}>
                       Mã kiểm tra <span style={{ color: '#ef4444' }}>*</span>
+                      <Typography 
+                        component="span" 
+                        variant="caption" 
+                        sx={{ ml: 1, color: '#64748b', fontWeight: 400 }}
+                      >
+                        (Phân biệt chữ hoa/thường)
+                      </Typography>
                     </Typography>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <Box
@@ -457,22 +464,41 @@ const PublicInvoiceLookup: React.FC = () => {
                           borderRadius: 1,
                           overflow: 'hidden',
                           position: 'relative',
+                          minHeight: 60,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#f0f9ff',
                         }}
                       >
-                        <canvas
-                          ref={canvasRef}
-                          width={200}
-                          height={60}
-                          style={{ width: '100%', height: 'auto', display: 'block' }}
-                        />
+                        {isCaptchaLoading ? (
+                          <CircularProgress size={24} sx={{ color: '#06b6d4' }} />
+                        ) : captchaImage ? (
+                          <img
+                            src={`data:image/png;base64,${captchaImage}`}
+                            alt="CAPTCHA"
+                            style={{ 
+                              width: '100%', 
+                              height: 'auto', 
+                              display: 'block',
+                            }}
+                          />
+                        ) : (
+                          <Typography variant="caption" color="text.secondary">
+                            Đang tải...
+                          </Typography>
+                        )}
                       </Box>
                       <IconButton
                         onClick={handleRefreshCaptcha}
-                        disabled={isLoading}
+                        disabled={isLoading || isCaptchaLoading}
                         sx={{
                           backgroundColor: '#f1f5f9',
                           '&:hover': {
                             backgroundColor: '#e2e8f0',
+                          },
+                          '&:disabled': {
+                            backgroundColor: '#f8fafc',
                           },
                         }}
                       >
@@ -481,11 +507,17 @@ const PublicInvoiceLookup: React.FC = () => {
                     </Stack>
                     <TextField
                       fullWidth
-                      placeholder="Nhập mã kiểm tra..."
+                      placeholder="Nhập chính xác mã kiểm tra..."
                       value={captchaInput}
-                      onChange={(e) => setCaptchaInput(e.target.value.toUpperCase())}
+                      onChange={(e) => setCaptchaInput(e.target.value)}
                       required
                       disabled={isLoading}
+                      inputProps={{
+                        autoCapitalize: 'off',
+                        autoCorrect: 'off',
+                        autoComplete: 'off',
+                      }}
+                      helperText="Nếu không rõ, click nút làm mới để tải mã mới"
                       sx={{ mt: 1 }}
                     />
                   </Box>
