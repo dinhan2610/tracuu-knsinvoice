@@ -98,7 +98,7 @@ const PublicInvoiceLookup: React.FC = () => {
     try {
       const url = `${API_BASE_URL}/captcha/generate`
       console.log('Fetching captcha from:', url)
-      alert(`DEBUG: Đang tải captcha từ ${url}`) // Mobile debug
+      console.log('import.meta.env.DEV:', import.meta.env.DEV)
       
       const response = await fetch(url, {
         method: 'GET',
@@ -108,10 +108,10 @@ const PublicInvoiceLookup: React.FC = () => {
       })
 
       console.log('Captcha response status:', response.status)
-      alert(`DEBUG: Response status = ${response.status}`) // Mobile debug
       
       if (!response.ok) {
-        throw new Error(`Không thể tải mã kiểm tra. Status: ${response.status}`)
+        const errorText = await response.text().catch(() => 'Unknown error')
+        throw new Error(`Lỗi tải captcha. Status: ${response.status}. ${errorText}`)
       }
 
       const data = await response.json()
@@ -120,7 +120,6 @@ const PublicInvoiceLookup: React.FC = () => {
         hasImageBase64: !!data.imageBase64,
         imageLength: data.imageBase64?.length || 0
       })
-      alert(`DEBUG: Data OK - ID: ${!!data.captchaId}, Image: ${!!data.imageBase64}`) // Mobile debug
       
       // Backend trả về: { captchaId, imageBase64 }
       if (!data.captchaId || !data.imageBase64) {
@@ -132,12 +131,17 @@ const PublicInvoiceLookup: React.FC = () => {
       setCaptchaInput('') // Clear input khi có captcha mới
       
       console.log('Captcha loaded successfully')
-      alert('DEBUG: Captcha tải thành công!') // Mobile debug
     } catch (err) {
       console.error('Fetch captcha error:', err)
-      const errorMsg = err instanceof Error ? err.message : 'Không thể tải mã kiểm tra. Vui lòng thử lại.'
+      let errorMsg = 'Lỗi không xác định'
+      
+      if (err instanceof TypeError) {
+        errorMsg = `Lỗi kết nối: ${err.message}. Kiểm tra kết nối mạng.`
+      } else if (err instanceof Error) {
+        errorMsg = err.message
+      }
+      
       setError(errorMsg)
-      alert(`DEBUG ERROR: ${errorMsg}`) // Mobile debug
       // Clear captcha state khi lỗi
       setCaptchaId('')
       setCaptchaImage('')
@@ -520,14 +524,29 @@ const PublicInvoiceLookup: React.FC = () => {
                             }}
                           />
                         ) : (
-                          <Stack alignItems="center" spacing={1} sx={{ p: 2 }}>
-                            <Typography variant="caption" color="error" textAlign="center">
+                          <Stack alignItems="center" spacing={1} sx={{ p: 2, maxWidth: '100%' }}>
+                            <Typography variant="caption" color="error" textAlign="center" sx={{ fontSize: '0.7rem' }}>
                               Chưa tải được mã
                             </Typography>
+                            {error && (
+                              <Typography 
+                                variant="caption" 
+                                sx={{ 
+                                  fontSize: '0.65rem', 
+                                  color: '#64748b',
+                                  textAlign: 'center',
+                                  wordBreak: 'break-word',
+                                  maxWidth: '100%',
+                                  px: 1
+                                }}
+                              >
+                                {error}
+                              </Typography>
+                            )}
                             <Button 
                               size="small" 
                               onClick={handleRefreshCaptcha}
-                              sx={{ fontSize: '0.75rem' }}
+                              sx={{ fontSize: '0.75rem', mt: 1 }}
                             >
                               Thử lại
                             </Button>
