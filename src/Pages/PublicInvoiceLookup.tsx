@@ -96,7 +96,7 @@ const PublicInvoiceLookup: React.FC = () => {
     setError(null)
     
     try {
-      const response = await fetch(`${API_BASE_URL}/captcha/generate`, {
+      const response = await fetch(`${API_BASE_URL}/Captcha/generate`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
