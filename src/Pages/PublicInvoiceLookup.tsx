@@ -96,9 +96,11 @@ const PublicInvoiceLookup: React.FC = () => {
     setError(null) // Clear error trước
     
     try {
-      console.log('Fetching captcha from:', `${API_BASE_URL}/captcha/generate`)
+      const url = `${API_BASE_URL}/captcha/generate`
+      console.log('Fetching captcha from:', url)
+      alert(`DEBUG: Đang tải captcha từ ${url}`) // Mobile debug
       
-      const response = await fetch(`${API_BASE_URL}/captcha/generate`, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
@@ -106,6 +108,7 @@ const PublicInvoiceLookup: React.FC = () => {
       })
 
       console.log('Captcha response status:', response.status)
+      alert(`DEBUG: Response status = ${response.status}`) // Mobile debug
       
       if (!response.ok) {
         throw new Error(`Không thể tải mã kiểm tra. Status: ${response.status}`)
@@ -117,6 +120,7 @@ const PublicInvoiceLookup: React.FC = () => {
         hasImageBase64: !!data.imageBase64,
         imageLength: data.imageBase64?.length || 0
       })
+      alert(`DEBUG: Data OK - ID: ${!!data.captchaId}, Image: ${!!data.imageBase64}`) // Mobile debug
       
       // Backend trả về: { captchaId, imageBase64 }
       if (!data.captchaId || !data.imageBase64) {
@@ -128,10 +132,12 @@ const PublicInvoiceLookup: React.FC = () => {
       setCaptchaInput('') // Clear input khi có captcha mới
       
       console.log('Captcha loaded successfully')
+      alert('DEBUG: Captcha tải thành công!') // Mobile debug
     } catch (err) {
       console.error('Fetch captcha error:', err)
       const errorMsg = err instanceof Error ? err.message : 'Không thể tải mã kiểm tra. Vui lòng thử lại.'
       setError(errorMsg)
+      alert(`DEBUG ERROR: ${errorMsg}`) // Mobile debug
       // Clear captcha state khi lỗi
       setCaptchaId('')
       setCaptchaImage('')
