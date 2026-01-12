@@ -32,8 +32,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 // API Configuration
 // Trong development: dùng proxy '/api' -> 'http://159.223.64.31/api'
-// Trong production: cần config CORS trên backend hoặc dùng same domain
-const API_BASE_URL = import.meta.env.DEV ? '/api' : 'http://159.223.64.31/api'
+// Trong production: dùng relative path (cùng domain) hoặc backend domain có SSL
+const API_BASE_URL = import.meta.env.DEV ? '/api' : '/api'
 
 // Interface cho API response - Backend trả về trực tiếp object
 interface InvoiceApiResponse {
@@ -95,17 +95,50 @@ const PublicInvoiceLookup: React.FC = () => {
     setIsCaptchaLoading(true)
     setError(null) // Clear error trước
     
+    // BYPASS: Tạo fake captcha nếu không load được từ backend
+    const generateFakeCaptcha = () => {
+      const fakeId = 'fake-' + Math.random().toString(36).substring(7)
+      const fakeText = Math.random().toString(36).substring(2, 6).toUpperCase()
+      
+      // Tạo canvas để generate captcha image
+      const canvas = document.createElement('canvas')
+      canvas.width = 120
+      canvas.height = 50
+      const ctx = canvas.getContext('2d')
+      
+      if (ctx) {
+        ctx.fillStyle = '#f0f9ff'
+        ctx.fillRect(0, 0, 120, 50)
+        ctx.font = 'bold 24px Arial'
+        ctx.fillStyle = '#06b6d4'
+        ctx.fillText(fakeText, 15, 35)
+      }
+      
+      const imageBase64 = canvas.toDataURL('image/png').split(',')[1]
+      
+      setCaptchaId(fakeId)
+      setCaptchaImage(imageBase64)
+      setCaptchaInput('')
+      console.log('Using fake captcha:', fakeText)
+    }
+    
     try {
       const url = `${API_BASE_URL}/captcha/generate`
       console.log('Fetching captcha from:', url)
       console.log('import.meta.env.DEV:', import.meta.env.DEV)
+      
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5s timeout
       
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
         },
+        signal: controller.signal
       })
+      
+      clearTimeout(timeoutId)
 
       console.log('Captcha response status:', response.status)
       
@@ -133,6 +166,15 @@ const PublicInvoiceLookup: React.FC = () => {
       console.log('Captcha loaded successfully')
     } catch (err) {
       console.error('Fetch captcha error:', err)
+      
+      // Nếu là network error hoặc timeout, dùng fake captcha
+      if (err instanceof TypeError || (err instanceof Error && err.name === 'AbortError')) {
+        console.warn('Network error, using fake captcha')
+        generateFakeCaptcha()
+        setError('⚠️ Đang dùng mã test (backend không khả dụng)')
+        return
+      }
+      
       let errorMsg = 'Lỗi không xác định'
       
       if (err instanceof TypeError) {
@@ -142,9 +184,8 @@ const PublicInvoiceLookup: React.FC = () => {
       }
       
       setError(errorMsg)
-      // Clear captcha state khi lỗi
-      setCaptchaId('')
-      setCaptchaImage('')
+      // Vẫn generate fake captcha để test được
+      generateFakeCaptcha()
     } finally {
       setIsCaptchaLoading(false)
     }
