@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box,
   Container,
@@ -292,24 +292,20 @@ const PublicInvoiceLookup: React.FC = () => {
               </Typography>
             </Box>
           </Stack>
-          {!isMobile && (
-            <Button
-              href="tel:1900xxxx"
-              component="a"
-              startIcon={<PhoneIcon sx={{ fontSize: 18 }} />}
-              sx={{ 
-                color: '#06b6d4', 
-                textTransform: 'none',
-                border: '1px solid #06b6d4',
-                '&:hover': { 
-                  backgroundColor: 'rgba(6, 182, 212, 0.1)',
-                  borderColor: '#06b6d4'
-                }
-              }}
-            >
-              Liên hệ
-            </Button>
-          )}
+          <IconButton
+            href="tel:1900xxxx"
+            component="a"
+            size={isMobile ? "small" : "medium"}
+            sx={{ 
+              color: '#06b6d4',
+              border: '1px solid #06b6d4',
+              '&:hover': { 
+                backgroundColor: 'rgba(6, 182, 212, 0.1)',
+              }
+            }}
+          >
+            <PhoneIcon sx={{ fontSize: { xs: 20, md: 24 } }} />
+          </IconButton>
         </Toolbar>
       </AppBar>
 
@@ -364,12 +360,15 @@ const PublicInvoiceLookup: React.FC = () => {
               <Paper
                 elevation={24}
                 sx={{
-                  p: 4,
-                  borderRadius: 3,
+                  p: { xs: 2.5, sm: 3, md: 4 },
+                  borderRadius: { xs: 2, md: 3 },
                   background: 'rgba(255, 255, 255, 0.95)',
                   backdropFilter: 'blur(20px)',
                   border: '1px solid rgba(6, 182, 212, 0.2)',
-                  boxShadow: '0 20px 60px rgba(6, 182, 212, 0.3)',
+                  boxShadow: { 
+                    xs: '0 10px 30px rgba(6, 182, 212, 0.2)',
+                    md: '0 20px 60px rgba(6, 182, 212, 0.3)'
+                  },
                 }}
               >
                 <Stack spacing={3}>
@@ -386,9 +385,10 @@ const PublicInvoiceLookup: React.FC = () => {
                         gap: 1,
                         letterSpacing: '-0.02em',
                         fontFamily: '"Inter", "Noto Sans", sans-serif',
+                        fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' },
                       }}
                     >
-                      <DescriptionIcon sx={{ fontSize: 32, color: '#06b6d4' }} />
+                      <DescriptionIcon sx={{ fontSize: { xs: 26, md: 32 }, color: '#06b6d4' }} />
                       Tra cứu hóa đơn
                     </Typography>
                     <Typography 
@@ -464,7 +464,7 @@ const PublicInvoiceLookup: React.FC = () => {
                           borderRadius: 1,
                           overflow: 'hidden',
                           position: 'relative',
-                          minHeight: 60,
+                          minHeight: { xs: 50, sm: 60 },
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -552,7 +552,7 @@ const PublicInvoiceLookup: React.FC = () => {
             </Box>
 
             {/* Right side - Features/Illustration */}
-            <Box sx={{ width: { xs: '100%', md: '50%' } }}>
+            <Box sx={{ width: { xs: '100%', md: '50%' }, display: { xs: result ? 'none' : 'block', md: 'block' } }}>
               <Stack spacing={3}>
                 <Typography 
                   variant="h3" 
@@ -561,6 +561,7 @@ const PublicInvoiceLookup: React.FC = () => {
                     color: '#fff',
                     textShadow: '0 2px 10px rgba(0,0,0,0.2)',
                     mb: 2,
+                    fontSize: { xs: '1.75rem', sm: '2.25rem', md: '3rem' },
                   }}
                 >
                   Giải pháp hóa đơn điện tử
@@ -568,7 +569,14 @@ const PublicInvoiceLookup: React.FC = () => {
                   <span style={{ color: '#06b6d4' }}>Thời đại số</span>
                 </Typography>
 
-                <Typography variant="h6" sx={{ color: '#94a3b8', mb: 3 }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: '#94a3b8', 
+                    mb: 3,
+                    fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.25rem' },
+                  }}
+                >
                   Tra cứu nhanh chóng, chính xác, bảo mật tuyệt đối
                 </Typography>
 
@@ -614,10 +622,10 @@ const PublicInvoiceLookup: React.FC = () => {
               <Paper
                 elevation={12}
                 sx={{
-                  p: 4,
-                  borderRadius: 3,
+                  p: { xs: 2.5, sm: 3, md: 4 },
+                  borderRadius: { xs: 2, md: 3 },
                   backgroundColor: '#fff',
-                  border: '2px solid #06b6d4',
+                  border: { xs: '1px solid #06b6d4', md: '2px solid #06b6d4' },
                 }}
               >
                 <Stack spacing={3}>
@@ -630,6 +638,7 @@ const PublicInvoiceLookup: React.FC = () => {
                         mb: 1,
                         letterSpacing: '-0.01em',
                         fontFamily: '"Inter", "Noto Sans", sans-serif',
+                        fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.5rem' },
                       }}
                     >
                       Thông tin hóa đơn
@@ -765,7 +774,7 @@ const PublicInvoiceLookup: React.FC = () => {
         sx={{
           backgroundColor: '#0f172a',
           color: '#fff',
-          py: 6,
+          py: { xs: 4, md: 6 },
           borderTop: '2px solid #06b6d4',
         }}
       >
@@ -783,9 +792,10 @@ const PublicInvoiceLookup: React.FC = () => {
                     color: '#06b6d4',
                     letterSpacing: '-0.01em',
                     lineHeight: 1.3,
+                    fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.25rem' },
                   }}
                 >
-                  CÔNG TY CỔ PHẦN GIẢI PHÁP TỔNG THỂ KỶ NGUYÊN SỐ
+                  CÔNG TY CỔ PHẦN GIẢI PHÁP<br />TỔNG THỂ KỶ NGUYÊN SỐ
                 </Typography>
                 <Stack spacing={1}>
                   <Stack direction="row" spacing={1} alignItems="flex-start">
