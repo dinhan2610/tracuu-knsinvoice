@@ -93,99 +93,34 @@ const PublicInvoiceLookup: React.FC = () => {
   // Fetch CAPTCHA từ backend
   const fetchCaptcha = async () => {
     setIsCaptchaLoading(true)
-    setError(null) // Clear error trước
-    
-    // BYPASS: Tạo fake captcha nếu không load được từ backend
-    const generateFakeCaptcha = () => {
-      const fakeId = 'fake-' + Math.random().toString(36).substring(7)
-      const fakeText = Math.random().toString(36).substring(2, 6).toUpperCase()
-      
-      // Tạo canvas để generate captcha image
-      const canvas = document.createElement('canvas')
-      canvas.width = 120
-      canvas.height = 50
-      const ctx = canvas.getContext('2d')
-      
-      if (ctx) {
-        ctx.fillStyle = '#f0f9ff'
-        ctx.fillRect(0, 0, 120, 50)
-        ctx.font = 'bold 24px Arial'
-        ctx.fillStyle = '#06b6d4'
-        ctx.fillText(fakeText, 15, 35)
-      }
-      
-      const imageBase64 = canvas.toDataURL('image/png').split(',')[1]
-      
-      setCaptchaId(fakeId)
-      setCaptchaImage(imageBase64)
-      setCaptchaInput('')
-      console.log('Using fake captcha:', fakeText)
-    }
+    setError(null)
     
     try {
-      const url = `${API_BASE_URL}/captcha/generate`
-      console.log('Fetching captcha from:', url)
-      console.log('import.meta.env.DEV:', import.meta.env.DEV)
-      
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5000) // 5s timeout
-      
-      const response = await fetch(url, {
+      const response = await fetch(`${API_BASE_URL}/captcha/generate`, {
         method: 'GET',
         headers: {
           'accept': 'application/json',
         },
-        signal: controller.signal
       })
       
-      clearTimeout(timeoutId)
-
-      console.log('Captcha response status:', response.status)
-      
       if (!response.ok) {
-        const errorText = await response.text().catch(() => 'Unknown error')
-        throw new Error(`Lỗi tải captcha. Status: ${response.status}. ${errorText}`)
+        throw new Error('Không thể tải mã kiểm tra. Vui lòng thử lại.')
       }
 
       const data = await response.json()
-      console.log('Captcha data received:', {
-        hasCaptchaId: !!data.captchaId,
-        hasImageBase64: !!data.imageBase64,
-        imageLength: data.imageBase64?.length || 0
-      })
       
-      // Backend trả về: { captchaId, imageBase64 }
       if (!data.captchaId || !data.imageBase64) {
         throw new Error('Dữ liệu captcha không hợp lệ')
       }
       
       setCaptchaId(data.captchaId)
       setCaptchaImage(data.imageBase64)
-      setCaptchaInput('') // Clear input khi có captcha mới
-      
-      console.log('Captcha loaded successfully')
+      setCaptchaInput('')
     } catch (err) {
-      console.error('Fetch captcha error:', err)
-      
-      // Nếu là network error hoặc timeout, dùng fake captcha
-      if (err instanceof TypeError || (err instanceof Error && err.name === 'AbortError')) {
-        console.warn('Network error, using fake captcha')
-        generateFakeCaptcha()
-        setError('⚠️ Đang dùng mã test (backend không khả dụng)')
-        return
-      }
-      
-      let errorMsg = 'Lỗi không xác định'
-      
-      if (err instanceof TypeError) {
-        errorMsg = `Lỗi kết nối: ${err.message}. Kiểm tra kết nối mạng.`
-      } else if (err instanceof Error) {
-        errorMsg = err.message
-      }
-      
+      const errorMsg = err instanceof Error ? err.message : 'Không thể tải mã kiểm tra. Vui lòng thử lại.'
       setError(errorMsg)
-      // Vẫn generate fake captcha để test được
-      generateFakeCaptcha()
+      setCaptchaId('')
+      setCaptchaImage('')
     } finally {
       setIsCaptchaLoading(false)
     }
@@ -244,18 +179,9 @@ const PublicInvoiceLookup: React.FC = () => {
       // Thêm CAPTCHA headers nếu không skip
       const skipCaptcha = import.meta.env.VITE_ENABLE_CAPTCHA === 'false'
       if (!skipCaptcha) {
-        console.log('Sending captcha headers:', {
-          captchaId,
-          captchaInput: captchaInput.trim(),
-          captchaIdLength: captchaId?.length || 0,
-          captchaInputLength: captchaInput.trim().length
-        })
-        
-        headers['X-Captcha-ID'] = captchaId || ''
-        headers['X-Captcha-Input'] = captchaInput.trim() || ''
+        headers['X-Captcha-ID'] = captchaId
+        headers['X-Captcha-Input'] = captchaInput.trim()
       }
-
-      console.log('Request headers:', headers)
 
       const response = await fetch(
         `${API_BASE_URL}/Invoice/lookup/${lookupCode.trim()}`,
@@ -277,16 +203,12 @@ const PublicInvoiceLookup: React.FC = () => {
             const errorData = await response.json().catch(() => ({}))
             errorMessage = errorData.message || 'Yêu cầu không hợp lệ.'
           } else {
-            // Plain text response
             errorMessage = await response.text().catch(() => 'Yêu cầu không hợp lệ.')
           }
           
-          console.log('Backend error 400:', errorMessage)
-          
           // Nếu là lỗi captcha → auto refresh captcha mới
           if (errorMessage.toLowerCase().includes('captcha')) {
-            console.log('Auto refreshing captcha...')
-            handleRefreshCaptcha() // Tự động refresh captcha
+            handleRefreshCaptcha()
             throw new Error(errorMessage)
           }
           
@@ -298,9 +220,6 @@ const PublicInvoiceLookup: React.FC = () => {
 
       const apiResponse: InvoiceApiResponse = await response.json()
       
-      console.log('API Response:', apiResponse)
-      
-      // Validate response có đủ fields không
       if (!apiResponse.invoiceNumber || !apiResponse.serialNumber) {
         throw new Error('Dữ liệu hóa đơn không hợp lệ.')
       }
@@ -559,10 +478,7 @@ const PublicInvoiceLookup: React.FC = () => {
                               height: 'auto', 
                               display: 'block',
                             }}
-                            onError={() => {
-                              console.error('Image load error')
-                              setError('Không thể hiển thị mã kiểm tra. Vui lòng thử lại.')
-                            }}
+                            onError={() => setError('Không thể hiển thị mã kiểm tra. Vui lòng thử lại.')}
                           />
                         ) : (
                           <Stack alignItems="center" spacing={1} sx={{ p: 2, maxWidth: '100%' }}>
@@ -573,36 +489,16 @@ const PublicInvoiceLookup: React.FC = () => {
                               <Typography 
                                 variant="caption" 
                                 sx={{ 
-                                  fontSize: '0.65rem', 
-                                  color: '#64748b',
+                                  fontSize: '0.7rem', 
+                                  color: '#ef4444',
                                   textAlign: 'center',
-                                  wordBreak: 'break-word',
-                                  maxWidth: '100%',
+                                  fontWeight: 500,
                                   px: 1
                                 }}
                               >
                                 {error}
                               </Typography>
                             )}
-                            <Typography 
-                              variant="caption" 
-                              sx={{ 
-                                fontSize: '0.6rem', 
-                                color: '#94a3b8',
-                                textAlign: 'center',
-                                fontFamily: 'monospace',
-                                wordBreak: 'break-all',
-                                maxWidth: '100%',
-                                px: 1,
-                                mt: 0.5
-                              }}
-                            >
-                              URL: {API_BASE_URL}/captcha/generate
-                              <br />
-                              DEV: {import.meta.env.DEV ? 'Yes' : 'No'}
-                              <br />
-                              Window: {window.location.href}
-                            </Typography>
                             <Button 
                               size="small" 
                               onClick={handleRefreshCaptcha}
