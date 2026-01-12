@@ -543,6 +543,25 @@ const PublicInvoiceLookup: React.FC = () => {
                                 {error}
                               </Typography>
                             )}
+                            <Typography 
+                              variant="caption" 
+                              sx={{ 
+                                fontSize: '0.6rem', 
+                                color: '#94a3b8',
+                                textAlign: 'center',
+                                fontFamily: 'monospace',
+                                wordBreak: 'break-all',
+                                maxWidth: '100%',
+                                px: 1,
+                                mt: 0.5
+                              }}
+                            >
+                              URL: {API_BASE_URL}/captcha/generate
+                              <br />
+                              DEV: {import.meta.env.DEV ? 'Yes' : 'No'}
+                              <br />
+                              Window: {window.location.href}
+                            </Typography>
                             <Button 
                               size="small" 
                               onClick={handleRefreshCaptcha}
