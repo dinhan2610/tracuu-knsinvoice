@@ -93,7 +93,11 @@ const PublicInvoiceLookup: React.FC = () => {
   // Fetch CAPTCHA từ backend
   const fetchCaptcha = async () => {
     setIsCaptchaLoading(true)
+    setError(null) // Clear error trước
+    
     try {
+      console.log('Fetching captcha from:', `${API_BASE_URL}/captcha/generate`)
+      
       const response = await fetch(`${API_BASE_URL}/captcha/generate`, {
         method: 'GET',
         headers: {
@@ -101,19 +105,36 @@ const PublicInvoiceLookup: React.FC = () => {
         },
       })
 
+      console.log('Captcha response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error('Không thể tải mã kiểm tra. Vui lòng thử lại.')
+        throw new Error(`Không thể tải mã kiểm tra. Status: ${response.status}`)
       }
 
       const data = await response.json()
+      console.log('Captcha data received:', {
+        hasCaptchaId: !!data.captchaId,
+        hasImageBase64: !!data.imageBase64,
+        imageLength: data.imageBase64?.length || 0
+      })
       
       // Backend trả về: { captchaId, imageBase64 }
+      if (!data.captchaId || !data.imageBase64) {
+        throw new Error('Dữ liệu captcha không hợp lệ')
+      }
+      
       setCaptchaId(data.captchaId)
       setCaptchaImage(data.imageBase64)
       setCaptchaInput('') // Clear input khi có captcha mới
+      
+      console.log('Captcha loaded successfully')
     } catch (err) {
       console.error('Fetch captcha error:', err)
-      setError('Không thể tải mã kiểm tra. Vui lòng thử lại.')
+      const errorMsg = err instanceof Error ? err.message : 'Không thể tải mã kiểm tra. Vui lòng thử lại.'
+      setError(errorMsg)
+      // Clear captcha state khi lỗi
+      setCaptchaId('')
+      setCaptchaImage('')
     } finally {
       setIsCaptchaLoading(false)
     }
@@ -472,7 +493,12 @@ const PublicInvoiceLookup: React.FC = () => {
                         }}
                       >
                         {isCaptchaLoading ? (
-                          <CircularProgress size={24} sx={{ color: '#06b6d4' }} />
+                          <Stack alignItems="center" spacing={1}>
+                            <CircularProgress size={24} sx={{ color: '#06b6d4' }} />
+                            <Typography variant="caption" color="text.secondary">
+                              Đang tải...
+                            </Typography>
+                          </Stack>
                         ) : captchaImage ? (
                           <img
                             src={`data:image/png;base64,${captchaImage}`}
@@ -482,11 +508,24 @@ const PublicInvoiceLookup: React.FC = () => {
                               height: 'auto', 
                               display: 'block',
                             }}
+                            onError={() => {
+                              console.error('Image load error')
+                              setError('Không thể hiển thị mã kiểm tra. Vui lòng thử lại.')
+                            }}
                           />
                         ) : (
-                          <Typography variant="caption" color="text.secondary">
-                            Đang tải...
-                          </Typography>
+                          <Stack alignItems="center" spacing={1} sx={{ p: 2 }}>
+                            <Typography variant="caption" color="error" textAlign="center">
+                              Chưa tải được mã
+                            </Typography>
+                            <Button 
+                              size="small" 
+                              onClick={handleRefreshCaptcha}
+                              sx={{ fontSize: '0.75rem' }}
+                            >
+                              Thử lại
+                            </Button>
+                          </Stack>
                         )}
                       </Box>
                       <IconButton
