@@ -171,6 +171,13 @@ const PublicInvoiceLookup: React.FC = () => {
     if (!validateForm()) return
 
     setIsLoading(true)
+    
+    // Mở tab trống ngay khi user click để tránh popup blocker
+    let pdfWindow: Window | null = null
+    const shouldOpenPdf = true // Luôn mở PDF nếu có
+    if (shouldOpenPdf) {
+      pdfWindow = window.open('about:blank', '_blank')
+    }
 
     try {
       // Call API thực tế với CAPTCHA headers
@@ -240,14 +247,20 @@ const PublicInvoiceLookup: React.FC = () => {
       
       setResult(invoiceResult)
       
-      // Auto-open PDF nếu có pdfUrl
-      if (invoiceResult.pdfUrl) {
-        setPdfOpened(true) // Mark PDF as opened
-        setTimeout(() => {
-          window.open(invoiceResult.pdfUrl, '_blank', 'noopener,noreferrer')
-        }, 300) // Delay 300ms để tránh popup blocker
+      // Redirect tab đã mở đến PDF URL
+      if (invoiceResult.pdfUrl && pdfWindow && !pdfWindow.closed) {
+        pdfWindow.location.href = invoiceResult.pdfUrl
+        setPdfOpened(true)
+      } else if (invoiceResult.pdfUrl && pdfWindow?.closed) {
+        // Tab bị đóng hoặc popup blocker chặn
+        console.warn('PDF tab was blocked or closed')
       }
     } catch (err) {
+      // Đóng tab trống nếu có lỗi
+      if (pdfWindow && !pdfWindow.closed) {
+        pdfWindow.close()
+      }
+      
       if (err instanceof Error) {
         setError(err.message)
       } else {
