@@ -726,27 +726,19 @@ const PublicInvoiceLookup: React.FC = () => {
 
                   <Divider />
 
-                  <Stack spacing={{ xs: 2.5, md: 3 }}>
+                  <Stack spacing={{ xs: 3, md: 3.5 }}>
                     {/* Row 1: Số hóa đơn + Ký hiệu */}
                     <Stack 
                       direction={{ xs: 'column', sm: 'row' }}
-                      spacing={{ xs: 2.5, sm: 3 }}
-                      sx={{
-                        p: { xs: 2, md: 2.5 },
-                        backgroundColor: '#f8fafc',
-                        borderRadius: 2,
-                        border: '1px solid #e2e8f0',
-                      }}
+                      spacing={{ xs: 3, sm: 4 }}
                     >
                       <Box sx={{ flex: 1 }}>
                         <Typography 
-                          variant="caption" 
                           sx={{ 
                             color: '#64748b',
-                            fontWeight: 600,
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
+                            fontWeight: 500,
+                            fontSize: { xs: '0.875rem', md: '0.9rem' },
+                            mb: 1,
                           }}
                         >
                           Số hóa đơn
@@ -755,26 +747,22 @@ const PublicInvoiceLookup: React.FC = () => {
                           sx={{ 
                             fontWeight: 700,
                             fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                            letterSpacing: '0.1em',
+                            letterSpacing: '0.05em',
                             color: '#0f172a',
-                            fontSize: { xs: '1.25rem', md: '1.5rem' },
-                            mt: 0.5,
+                            fontSize: { xs: '1.35rem', md: '1.5rem' },
                             fontVariantNumeric: 'tabular-nums',
                           }}
                         >
                           {result.invoiceNumber}
                         </Typography>
                       </Box>
-                      <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
                       <Box sx={{ flex: 1 }}>
                         <Typography 
-                          variant="caption" 
                           sx={{ 
                             color: '#64748b',
-                            fontWeight: 600,
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.05em',
+                            fontWeight: 500,
+                            fontSize: { xs: '0.875rem', md: '0.9rem' },
+                            mb: 1,
                           }}
                         >
                           Ký hiệu
@@ -783,10 +771,9 @@ const PublicInvoiceLookup: React.FC = () => {
                           sx={{ 
                             fontWeight: 700,
                             fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                            letterSpacing: '0.1em',
+                            letterSpacing: '0.05em',
                             color: '#0f172a',
-                            fontSize: { xs: '1.25rem', md: '1.5rem' },
-                            mt: 0.5,
+                            fontSize: { xs: '1.35rem', md: '1.5rem' },
                             fontVariantNumeric: 'tabular-nums',
                           }}
                         >
@@ -796,22 +783,13 @@ const PublicInvoiceLookup: React.FC = () => {
                     </Stack>
 
                     {/* Row 2: Ngày phát hành */}
-                    <Box
-                      sx={{
-                        p: { xs: 2, md: 2.5 },
-                        backgroundColor: '#f8fafc',
-                        borderRadius: 2,
-                        border: '1px solid #e2e8f0',
-                      }}
-                    >
+                    <Box>
                       <Typography 
-                        variant="caption" 
                         sx={{ 
                           color: '#64748b',
-                          fontWeight: 600,
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
+                          fontWeight: 500,
+                          fontSize: { xs: '0.875rem', md: '0.9rem' },
+                          mb: 1,
                         }}
                       >
                         Ngày phát hành
@@ -820,41 +798,36 @@ const PublicInvoiceLookup: React.FC = () => {
                         sx={{
                           fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
                           fontVariantNumeric: 'tabular-nums',
-                          letterSpacing: '0.03em',
+                          letterSpacing: '0.02em',
                           fontWeight: 600,
-                          fontSize: { xs: '1.1rem', md: '1.25rem' },
+                          fontSize: { xs: '1.1rem', md: '1.15rem' },
                           color: '#0f172a',
-                          mt: 0.5,
                         }}
                       >
                         {result.issueDate}
                       </Typography>
                     </Box>
 
-                    <Divider />
+                    <Divider sx={{ my: 1 }} />
 
                     {/* Row 3: Người bán */}
                     <Box>
                       <Typography 
-                        variant="caption" 
                         sx={{ 
                           color: '#64748b',
-                          fontWeight: 600,
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
+                          fontWeight: 500,
+                          fontSize: { xs: '0.875rem', md: '0.9rem' },
+                          mb: 1,
                         }}
                       >
                         Người bán
                       </Typography>
                       <Typography 
                         sx={{ 
-                          fontWeight: 700,
-                          fontSize: { xs: '1.05rem', md: '1.15rem' },
+                          fontWeight: 600,
+                          fontSize: { xs: '1.05rem', md: '1.1rem' },
                           color: '#0f172a',
-                          letterSpacing: '-0.01em',
-                          lineHeight: 1.4,
-                          mt: 0.75,
+                          lineHeight: 1.5,
                           fontFamily: '"Inter", "Noto Sans", sans-serif',
                         }}
                       >
@@ -865,13 +838,11 @@ const PublicInvoiceLookup: React.FC = () => {
                     {/* Row 4: Người mua */}
                     <Box>
                       <Typography 
-                        variant="caption" 
                         sx={{ 
                           color: '#64748b',
-                          fontWeight: 600,
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.05em',
+                          fontWeight: 500,
+                          fontSize: { xs: '0.875rem', md: '0.9rem' },
+                          mb: 1,
                         }}
                       >
                         Người mua
@@ -879,11 +850,9 @@ const PublicInvoiceLookup: React.FC = () => {
                       <Typography 
                         sx={{ 
                           fontWeight: 600,
-                          fontSize: { xs: '1rem', md: '1.1rem' },
+                          fontSize: { xs: '1.05rem', md: '1.1rem' },
                           color: result.buyerName === 'Chưa có thông tin' ? '#94a3b8' : '#0f172a',
-                          letterSpacing: '-0.01em',
-                          lineHeight: 1.4,
-                          mt: 0.75,
+                          lineHeight: 1.5,
                           fontStyle: result.buyerName === 'Chưa có thông tin' ? 'italic' : 'normal',
                           fontFamily: '"Inter", "Noto Sans", sans-serif',
                         }}
@@ -892,39 +861,28 @@ const PublicInvoiceLookup: React.FC = () => {
                       </Typography>
                     </Box>
 
-                    <Divider />
+                    <Divider sx={{ my: 1 }} />
 
-                    {/* Row 5: Tổng tiền - Highlight */}
-                    <Box
-                      sx={{
-                        p: { xs: 2.5, md: 3 },
-                        background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                        borderRadius: 2,
-                        textAlign: 'center',
-                      }}
-                    >
+                    {/* Row 5: Tổng tiền */}
+                    <Box>
                       <Typography 
-                        variant="caption" 
                         sx={{ 
-                          color: 'rgba(255, 255, 255, 0.9)',
-                          fontWeight: 700,
-                          fontSize: '0.8rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.1em',
+                          color: '#64748b',
+                          fontWeight: 500,
+                          fontSize: { xs: '0.875rem', md: '0.9rem' },
+                          mb: 1,
                         }}
                       >
                         Tổng tiền
                       </Typography>
                       <Typography 
                         sx={{ 
-                          fontWeight: 800,
-                          color: '#fff',
+                          fontWeight: 700,
+                          color: '#06b6d4',
                           fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
                           fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
-                          letterSpacing: '0.05em',
+                          letterSpacing: '0.02em',
                           fontVariantNumeric: 'tabular-nums',
-                          mt: 0.5,
-                          textShadow: '0 2px 4px rgba(0,0,0,0.1)',
                         }}
                       >
                         {result.totalAmount.toLocaleString('vi-VN')} ₫
