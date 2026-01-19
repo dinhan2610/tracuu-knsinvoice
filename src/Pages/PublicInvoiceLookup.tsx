@@ -746,11 +746,12 @@ const PublicInvoiceLookup: React.FC = () => {
                         <Typography 
                           sx={{ 
                             fontWeight: 700,
-                            fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                            letterSpacing: '0.05em',
+                            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+                            letterSpacing: '-0.02em',
                             color: '#0f172a',
-                            fontSize: { xs: '1.35rem', md: '1.5rem' },
-                            fontVariantNumeric: 'tabular-nums',
+                            fontSize: { xs: '1.5rem', md: '1.65rem' },
+                            fontVariantNumeric: 'lining-nums',
+                            fontFeatureSettings: '"tnum" 0',
                           }}
                         >
                           {result.invoiceNumber}
@@ -770,11 +771,12 @@ const PublicInvoiceLookup: React.FC = () => {
                         <Typography 
                           sx={{ 
                             fontWeight: 700,
-                            fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
+                            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
                             letterSpacing: '0.05em',
                             color: '#0f172a',
-                            fontSize: { xs: '1.35rem', md: '1.5rem' },
-                            fontVariantNumeric: 'tabular-nums',
+                            fontSize: { xs: '1.5rem', md: '1.65rem' },
+                            fontVariantNumeric: 'lining-nums',
+                            textTransform: 'uppercase',
                           }}
                         >
                           {result.serialNumber}
@@ -796,11 +798,11 @@ const PublicInvoiceLookup: React.FC = () => {
                       </Typography>
                       <Typography 
                         sx={{
-                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                          fontVariantNumeric: 'tabular-nums',
-                          letterSpacing: '0.02em',
+                          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontVariantNumeric: 'lining-nums',
+                          letterSpacing: '-0.01em',
                           fontWeight: 600,
-                          fontSize: { xs: '1.1rem', md: '1.15rem' },
+                          fontSize: { xs: '1.15rem', md: '1.2rem' },
                           color: '#0f172a',
                         }}
                       >
@@ -877,12 +879,13 @@ const PublicInvoiceLookup: React.FC = () => {
                       </Typography>
                       <Typography 
                         sx={{ 
-                          fontWeight: 700,
+                          fontWeight: 800,
                           color: '#06b6d4',
-                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                          fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
-                          letterSpacing: '0.02em',
-                          fontVariantNumeric: 'tabular-nums',
+                          fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, sans-serif',
+                          fontSize: { xs: '2rem', sm: '2.25rem', md: '2.5rem' },
+                          letterSpacing: '-0.03em',
+                          fontVariantNumeric: 'lining-nums',
+                          fontFeatureSettings: '"tnum" 0',
                         }}
                       >
                         {result.totalAmount.toLocaleString('vi-VN')} ₫
