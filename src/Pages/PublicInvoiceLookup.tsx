@@ -768,6 +768,7 @@ const PublicInvoiceLookup: React.FC = () => {
                       fullWidth
                       variant="outlined"
                       startIcon={<DescriptionIcon sx={{ fontSize: 20 }} />}
+                      onClick={() => window.open(result.pdfUrl, '_blank')}
                       sx={{
                         borderColor: '#06b6d4',
                         color: '#06b6d4',
