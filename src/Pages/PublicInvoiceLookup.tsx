@@ -89,6 +89,7 @@ const PublicInvoiceLookup: React.FC = () => {
   const [isCaptchaLoading, setIsCaptchaLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<InvoiceLookupResult | null>(null)
+  const [pdfOpened, setPdfOpened] = useState(false) // Track PDF auto-open status
 
   // Fetch CAPTCHA từ backend
   const fetchCaptcha = async () => {
@@ -165,6 +166,7 @@ const PublicInvoiceLookup: React.FC = () => {
   const handleSearch = async () => {
     setError(null)
     setResult(null)
+    setPdfOpened(false) // Reset PDF status
 
     if (!validateForm()) return
 
@@ -237,6 +239,14 @@ const PublicInvoiceLookup: React.FC = () => {
       }
       
       setResult(invoiceResult)
+      
+      // Auto-open PDF nếu có pdfUrl
+      if (invoiceResult.pdfUrl) {
+        setPdfOpened(true) // Mark PDF as opened
+        setTimeout(() => {
+          window.open(invoiceResult.pdfUrl, '_blank', 'noopener,noreferrer')
+        }, 300) // Delay 300ms để tránh popup blocker
+      }
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message)
@@ -639,6 +649,29 @@ const PublicInvoiceLookup: React.FC = () => {
           {/* Result Section */}
           {result && (
             <Box sx={{ mt: 6 }}>
+              {/* Alert thông báo PDF đã mở */}
+              {pdfOpened && result.pdfUrl && (
+                <Alert 
+                  severity="info" 
+                  sx={{ 
+                    mb: 3,
+                    borderRadius: 2,
+                    backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                    border: '1px solid #06b6d4',
+                    '& .MuiAlert-icon': {
+                      color: '#06b6d4',
+                    },
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 600, color: '#0f172a' }}>
+                    📄 Hóa đơn PDF đã được mở trong tab mới
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 0.5, color: '#64748b' }}>
+                    Nếu không thấy, vui lòng kiểm tra popup blocker hoặc click nút bên dưới để mở lại
+                  </Typography>
+                </Alert>
+              )}
+              
               <Paper
                 elevation={12}
                 sx={{
