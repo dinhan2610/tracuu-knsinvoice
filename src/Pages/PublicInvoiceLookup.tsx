@@ -910,7 +910,7 @@ const PublicInvoiceLookup: React.FC = () => {
                         },
                       }}
                     >
-                      Tải hóa đơn PDF
+                      Click để xem/tải hóa đơn PDF
                     </Button>
                   )}
                 </Stack>
