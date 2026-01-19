@@ -695,116 +695,239 @@ const PublicInvoiceLookup: React.FC = () => {
                 }}
               >
                 <Stack spacing={3}>
-                  <Box>
+                  {/* Header: Tiêu đề + Status */}
+                  <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={2}>
                     <Typography 
                       variant="h5" 
                       sx={{ 
                         fontWeight: 800, 
                         color: '#0f172a', 
-                        mb: 1,
-                        letterSpacing: '-0.01em',
+                        letterSpacing: '-0.02em',
                         fontFamily: '"Inter", "Noto Sans", sans-serif',
-                        fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.5rem' },
+                        fontSize: { xs: '1.35rem', sm: '1.6rem', md: '1.75rem' },
                       }}
                     >
                       Thông tin hóa đơn
                     </Typography>
-                    <Chip label={result.status} color="success" />
-                  </Box>
+                    <Chip 
+                      label={result.status} 
+                      color="success" 
+                      sx={{ 
+                        fontWeight: 700,
+                        fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                        height: { xs: 28, sm: 32 },
+                        px: 1.5,
+                        '& .MuiChip-label': {
+                          px: 1,
+                        }
+                      }} 
+                    />
+                  </Stack>
 
                   <Divider />
 
-                  <Stack spacing={3}>
+                  <Stack spacing={{ xs: 2.5, md: 3 }}>
+                    {/* Row 1: Số hóa đơn + Ký hiệu */}
                     <Stack 
                       direction={{ xs: 'column', sm: 'row' }}
-                      spacing={3}
+                      spacing={{ xs: 2.5, sm: 3 }}
+                      sx={{
+                        p: { xs: 2, md: 2.5 },
+                        backgroundColor: '#f8fafc',
+                        borderRadius: 2,
+                        border: '1px solid #e2e8f0',
+                      }}
                     >
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Số hóa đơn</Typography>
-                      <Typography 
-                        variant="h6" 
-                        sx={{ 
-                          fontWeight: 700,
-                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                          letterSpacing: '0.05em',
-                          color: '#0f172a',
-                        }}
-                      >
-                        {result.invoiceNumber}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="body2" color="text.secondary">Ký hiệu</Typography>
-                      <Typography 
-                        variant="h6" 
-                        sx={{ 
-                          fontWeight: 700,
-                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                          letterSpacing: '0.05em',
-                          color: '#0f172a',
-                        }}
-                      >
-                        {result.serialNumber}
-                      </Typography>
-                    </Box>
+                      <Box sx={{ flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: '#64748b',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          Số hóa đơn
+                        </Typography>
+                        <Typography 
+                          sx={{ 
+                            fontWeight: 700,
+                            fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
+                            letterSpacing: '0.1em',
+                            color: '#0f172a',
+                            fontSize: { xs: '1.25rem', md: '1.5rem' },
+                            mt: 0.5,
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                        >
+                          {result.invoiceNumber}
+                        </Typography>
+                      </Box>
+                      <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' } }} />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography 
+                          variant="caption" 
+                          sx={{ 
+                            color: '#64748b',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                          }}
+                        >
+                          Ký hiệu
+                        </Typography>
+                        <Typography 
+                          sx={{ 
+                            fontWeight: 700,
+                            fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
+                            letterSpacing: '0.1em',
+                            color: '#0f172a',
+                            fontSize: { xs: '1.25rem', md: '1.5rem' },
+                            mt: 0.5,
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                        >
+                          {result.serialNumber}
+                        </Typography>
+                      </Box>
                     </Stack>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">Ngày phát hành</Typography>
+
+                    {/* Row 2: Ngày phát hành */}
+                    <Box
+                      sx={{
+                        p: { xs: 2, md: 2.5 },
+                        backgroundColor: '#f8fafc',
+                        borderRadius: 2,
+                        border: '1px solid #e2e8f0',
+                      }}
+                    >
                       <Typography 
-                        variant="body1"
+                        variant="caption" 
+                        sx={{ 
+                          color: '#64748b',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        Ngày phát hành
+                      </Typography>
+                      <Typography 
                         sx={{
                           fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
                           fontVariantNumeric: 'tabular-nums',
-                          letterSpacing: '0.02em',
+                          letterSpacing: '0.03em',
                           fontWeight: 600,
+                          fontSize: { xs: '1.1rem', md: '1.25rem' },
+                          color: '#0f172a',
+                          mt: 0.5,
                         }}
                       >
                         {result.issueDate}
                       </Typography>
                     </Box>
+
+                    <Divider />
+
+                    {/* Row 3: Người bán */}
                     <Box>
-                      <Typography variant="body2" color="text.secondary">Người bán</Typography>
                       <Typography 
-                        variant="body1" 
+                        variant="caption" 
+                        sx={{ 
+                          color: '#64748b',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        Người bán
+                      </Typography>
+                      <Typography 
                         sx={{ 
                           fontWeight: 700,
-                          fontSize: '1.1rem',
+                          fontSize: { xs: '1.05rem', md: '1.15rem' },
                           color: '#0f172a',
-                          letterSpacing: '0.01em',
+                          letterSpacing: '-0.01em',
+                          lineHeight: 1.4,
+                          mt: 0.75,
+                          fontFamily: '"Inter", "Noto Sans", sans-serif',
                         }}
                       >
                         {result.sellerName}
                       </Typography>
                     </Box>
+
+                    {/* Row 4: Người mua */}
                     <Box>
-                      <Typography variant="body2" color="text.secondary">Người mua</Typography>
                       <Typography 
-                        variant="body1" 
+                        variant="caption" 
+                        sx={{ 
+                          color: '#64748b',
+                          fontWeight: 600,
+                          fontSize: '0.75rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.05em',
+                        }}
+                      >
+                        Người mua
+                      </Typography>
+                      <Typography 
                         sx={{ 
                           fontWeight: 600,
-                          fontSize: '1.05rem',
+                          fontSize: { xs: '1rem', md: '1.1rem' },
                           color: result.buyerName === 'Chưa có thông tin' ? '#94a3b8' : '#0f172a',
-                          letterSpacing: '0.01em',
+                          letterSpacing: '-0.01em',
+                          lineHeight: 1.4,
+                          mt: 0.75,
                           fontStyle: result.buyerName === 'Chưa có thông tin' ? 'italic' : 'normal',
+                          fontFamily: '"Inter", "Noto Sans", sans-serif',
                         }}
                       >
                         {result.buyerName}
                       </Typography>
                     </Box>
-                    <Box>
-                      <Typography variant="body2" color="text.secondary">Tổng tiền</Typography>
+
+                    <Divider />
+
+                    {/* Row 5: Tổng tiền - Highlight */}
+                    <Box
+                      sx={{
+                        p: { xs: 2.5, md: 3 },
+                        background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                        borderRadius: 2,
+                        textAlign: 'center',
+                      }}
+                    >
                       <Typography 
-                        variant="h6" 
+                        variant="caption" 
                         sx={{ 
-                          fontWeight: 700, 
-                          color: '#06b6d4',
-                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
-                          fontSize: '1.5rem',
-                          letterSpacing: '0.02em',
-                          fontVariantNumeric: 'tabular-nums',
+                          color: 'rgba(255, 255, 255, 0.9)',
+                          fontWeight: 700,
+                          fontSize: '0.8rem',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.1em',
                         }}
                       >
-                        {result.totalAmount.toLocaleString('vi-VN')} VNĐ
+                        Tổng tiền
+                      </Typography>
+                      <Typography 
+                        sx={{ 
+                          fontWeight: 800,
+                          color: '#fff',
+                          fontFamily: '"JetBrains Mono", "Roboto Mono", monospace',
+                          fontSize: { xs: '1.75rem', sm: '2rem', md: '2.25rem' },
+                          letterSpacing: '0.05em',
+                          fontVariantNumeric: 'tabular-nums',
+                          mt: 0.5,
+                          textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        {result.totalAmount.toLocaleString('vi-VN')} ₫
                       </Typography>
                     </Box>
                   </Stack>
