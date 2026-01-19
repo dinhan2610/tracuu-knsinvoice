@@ -896,21 +896,27 @@ const PublicInvoiceLookup: React.FC = () => {
                   {result.pdfUrl && (
                     <Button
                       fullWidth
-                      variant="outlined"
-                      startIcon={<DescriptionIcon sx={{ fontSize: 20 }} />}
+                      variant="contained"
+                      size="large"
+                      startIcon={<DescriptionIcon sx={{ fontSize: 22 }} />}
                       onClick={() => window.open(result.pdfUrl, '_blank')}
                       sx={{
-                        borderColor: '#06b6d4',
-                        color: '#06b6d4',
+                        py: 1.75,
+                        backgroundColor: '#06b6d4',
+                        color: '#fff',
                         textTransform: 'none',
-                        fontWeight: 600,
+                        fontWeight: 700,
+                        fontSize: { xs: '0.95rem', md: '1rem' },
+                        boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)',
                         '&:hover': {
-                          borderColor: '#0891b2',
-                          backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                          backgroundColor: '#0891b2',
+                          boxShadow: '0 6px 16px rgba(6, 182, 212, 0.4)',
+                          transform: 'translateY(-2px)',
                         },
+                        transition: 'all 0.3s ease',
                       }}
                     >
-                      Click để xem/tải hóa đơn PDF
+                      📄 Click để xem/tải hóa đơn PDF
                     </Button>
                   )}
                 </Stack>
