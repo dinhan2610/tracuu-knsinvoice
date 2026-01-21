@@ -31,9 +31,9 @@ import BoltIcon from '@mui/icons-material/Bolt'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 // API Configuration
-// Trong development: dùng proxy '/api' -> 'http://159.223.64.31/api'
-// Trong production: dùng relative path (cùng domain) hoặc backend domain có SSL
-const API_BASE_URL = import.meta.env.DEV ? '/api' : '/api'
+// Trong development: dùng proxy '/api' -> backend local/proxy
+// Trong production: dùng domain mới https://eims.site
+const API_BASE_URL = import.meta.env.DEV ? '/api' : 'https://eims.site/api'
 
 // Interface cho API response - Backend trả về trực tiếp object
 interface InvoiceApiResponse {
